@@ -62,32 +62,38 @@ function crearRutas({ modelos, requiereSesion, soloUsuarios, subirFotoPublicacio
 
   // POST /api/publicaciones (multipart: campos del formulario + "foto" obligatoria)
   router.post('/', soloUsuarios, subirFotoPublicacion, async (req, res) => {
+    let urlFotoSubida = null;
     try {
       if (!req.file) throw new ErrorHttp(400, 'La foto es obligatoria');
       const datos = await leerFormulario(req);
-      datos.foto = await rutaPublica('publicaciones', req.file);
+      urlFotoSubida = await rutaPublica('publicaciones', req.file);
+      datos.foto = urlFotoSubida;
       const id = await pubs.crear(req.usuario.idusuario, datos);
       res.status(201).json({ idpublicacion: id });
     } catch (error) {
-      if (req.file) borrarArchivo(rutaPublica('publicaciones', req.file)); // si algo falló, no dejar la foto huérfana
+      if (urlFotoSubida) await borrarArchivo(urlFotoSubida); // si algo falló, no dejar la foto huérfana
       throw error;
     }
   });
 
   // PUT /api/publicaciones/:id (solo el dueño; la foto es opcional al editar)
   router.put('/:id', soloUsuarios, subirFotoPublicacion, async (req, res) => {
+    let urlFotoSubida = null;
     try {
       const id = entero(req.params.id, 'id');
       const actual = await pubs.obtener(id);
       if (!actual || actual.disponibilidad === 'eliminada') throw new ErrorHttp(404, 'La publicación no existe');
       if (actual.idusuario !== req.usuario.idusuario) throw new ErrorHttp(403, 'Solo el dueño puede editarla');
       const datos = await leerFormulario(req);
-      datos.foto = req.file ? rutaPublica('publicaciones', req.file) : null;
+      if (req.file) {
+        urlFotoSubida = await rutaPublica('publicaciones', req.file);
+      }
+      datos.foto = urlFotoSubida;
       await pubs.actualizar(id, datos);
-      if (req.file) borrarArchivo(actual.foto); // se borra la foto anterior
+      if (urlFotoSubida) await borrarArchivo(actual.foto); // se borra la foto anterior
       res.json({ idpublicacion: id });
     } catch (error) {
-      if (req.file) borrarArchivo(rutaPublica('publicaciones', req.file));
+      if (urlFotoSubida) await borrarArchivo(urlFotoSubida);
       throw error;
     }
   });
