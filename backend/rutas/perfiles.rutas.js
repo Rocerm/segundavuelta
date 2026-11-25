@@ -35,7 +35,7 @@ function crearRutas({ modelos, requiereSesion, soloUsuarios, subirFotoPerfil }) 
   // POST /api/perfiles/yo/foto  (multipart, campo "foto")
   router.post('/yo/foto', subirFotoPerfil, async (req, res) => {
     if (!req.file) throw new ErrorHttp(400, 'Falta la foto');
-    const ruta = rutaPublica('perfiles', req.file);
+    const ruta = await rutaPublica('perfiles', req.file);
     borrarArchivo(await modelos.usuarios.cambiarFoto(req.usuario.idusuario, ruta)); // se borra la foto anterior
     res.json({ foto_perfil: ruta });
   });
@@ -71,13 +71,5 @@ function crearRutas({ modelos, requiereSesion, soloUsuarios, subirFotoPerfil }) 
 
   return router;
 }
-
-  // POST /api/perfiles/yo/foto  (multipart, campo "foto")
-  router.post('/yo/foto', subirFotoPerfil, async (req, res) => {
-    if (!req.file) throw new ErrorHttp(400, 'Falta la foto');
-    const ruta = await rutaPublica('perfiles', req.file);
-    borrarArchivo(await modelos.usuarios.cambiarFoto(req.usuario.idusuario, ruta)); // se borra la foto anterior
-    res.json({ foto_perfil: ruta });
-  });
 
 module.exports = { crearRutas };
