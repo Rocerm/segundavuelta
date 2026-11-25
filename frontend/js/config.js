@@ -3,7 +3,7 @@ const esLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
 const API_POR_DEFECTO = esLocal
   ? 'http://localhost:4600'
-  : 'https://onrender.com'; // ← Aquí pondrás la URL que te dé Render
+  : 'https://srv-dc3k8lc9v7es73cd7s30'
 
 const CONFIG = (() => {
   const url = new URLSearchParams(location.search).get('api');
