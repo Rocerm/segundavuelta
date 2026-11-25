@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chats y solicitudes · Segunda Vuelta</title>
+  <link rel="icon" href="/img/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body data-zona="usuario" data-seccion="chats" data-migas="Chats" data-pagina="chats">
+  <main id="pagina" class="contenedor">
+    <div class="encabezado-pagina"><div><h1>Chats y solicitudes</h1><p id="subtitulo">Sigue tus solicitudes y coordina entregas con tu comunidad.</p></div></div>
+    <section id="pendientes-calif" class="panel" hidden><h2>Por calificar</h2><div id="lista-calif"></div></section>
+    <div class="pestanas" role="tablist">
+      <button type="button" role="tab" class="activo" data-lista="enviadas">Mis solicitudes</button>
+      <button type="button" role="tab" data-lista="recibidas">Solicitudes recibidas</button>
+    </div>
+    <div class="chats">
+      <aside><h3 id="titulo-lista">Mis solicitudes</h3><div id="lista-sol"></div><p class="meta" id="pie-lista" style="padding:1rem 1.1rem"></p></aside>
+      <section class="chat-detalle" id="detalle-sol"><p class="vacio">Elige una solicitud para ver el detalle y el chat.</p></section>
+    </div>
+  </main>
+  <div id="avisos"></div>
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/calificaciones.js"></script>
+  <script src="/js/chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "name": "segundavuelta-frontend",
+  "version": "1.0.0",
+  "description": "Frontend de Segunda Vuelta (HTML, CSS y JavaScript). No necesita instalar paquetes.",
+  "scripts": { "start": "node servidor.js" },
+  "license": "ISC"
+}

@@ -1,0 +1,83 @@
+// /api/perfiles → perfil, foto, intereses, ajustes (nombre, alcaldía, contraseña), avisos y eliminar cuenta.
+const express = require('express');
+const config = require('../config');
+const { ErrorHttp, texto, nombrePersona, contrasena, entero } = require('../utilidades');
+const { rutaPublica, borrarArchivo } = require('../middlewares/upload.middleware');
+
+function crearRutas({ modelos, requiereSesion, soloUsuarios, subirFotoPerfil }) {
+  const router = express.Router();
+  router.use(requiereSesion); // todo lo de perfiles necesita sesión
+
+  // ----- Rutas de "yo" (van ANTES de /:id para que "yo" no se tome como un id) -----
+  router.get('/yo', async (req, res) => res.json(await modelos.usuarios.obtenerPropio(req.usuario.idusuario)));
+
+  // PUT /api/perfiles/yo  { nombre?, apellido?, biografia?, idalcaldia? }
+  // Solo se cambia lo que se manda (ajustes cambia nombre o alcaldía; editar perfil cambia biografía).
+  router.put('/yo', async (req, res) => {
+    const b = req.body || {};
+    const actual = await modelos.usuarios.obtenerPropio(req.usuario.idusuario);
+    await modelos.usuarios.actualizar(req.usuario.idusuario, {
+      nombre: b.nombre !== undefined ? nombrePersona(b.nombre, 'El nombre') : actual.nombre,
+      apellido: b.apellido !== undefined ? nombrePersona(b.apellido, 'El apellido') : actual.apellido,
+      biografia: b.biografia !== undefined ? texto(b.biografia, 'La biografía', { max: 255, opcional: true, multilinea: true }) : actual.biografia,
+      idalcaldia: b.idalcaldia !== undefined ? entero(b.idalcaldia, 'La alcaldía') : actual.idalcaldia,
+    });
+    res.json(await modelos.usuarios.obtenerPropio(req.usuario.idusuario));
+  });
+
+  // POST /api/perfiles/yo/contrasena  { actual, nueva }
+  router.post('/yo/contrasena', async (req, res) => {
+    const b = req.body || {};
+    await modelos.usuarios.cambiarContrasena(req.usuario.idusuario, b.actual, contrasena(b.nueva, 'La contraseña nueva'));
+    res.json({ mensaje: 'Contraseña actualizada' });
+  });
+
+  // POST /api/perfiles/yo/foto  (multipart, campo "foto")
+  router.post('/yo/foto', subirFotoPerfil, async (req, res) => {
+    if (!req.file) throw new ErrorHttp(400, 'Falta la foto');
+    const ruta = rutaPublica('perfiles', req.file);
+    borrarArchivo(await modelos.usuarios.cambiarFoto(req.usuario.idusuario, ruta)); // se borra la foto anterior
+    res.json({ foto_perfil: ruta });
+  });
+
+  // ----- Solo para usuarios (el admin no tiene intereses, avisos ni puede borrar su cuenta) -----
+  router.get('/yo/intereses', soloUsuarios, async (req, res) => res.json(await modelos.usuarios.obtenerIntereses(req.usuario.idusuario)));
+
+  // PUT /api/perfiles/yo/intereses  { categorias: [1,2,3] }
+  router.put('/yo/intereses', soloUsuarios, async (req, res) => {
+    const lista = req.body && req.body.categorias;
+    if (!Array.isArray(lista) || lista.length > 50) throw new ErrorHttp(400, 'categorias debe ser una lista');
+    const ids = [...new Set(lista.map((x) => entero(x, 'Categoría')))]; // sin repetidos
+    await modelos.usuarios.guardarIntereses(req.usuario.idusuario, ids);
+    res.json({ categorias: ids });
+  });
+
+  // GET /api/perfiles/yo/avisos → advertencias, suspensiones y baneos de mi cuenta (con su estado)
+  router.get('/yo/avisos', soloUsuarios, async (req, res) => res.json(await modelos.moderacion.sancionesDe(req.usuario.idusuario)));
+
+  // DELETE /api/perfiles/yo → "eliminar cuenta" (activo = false) y cierra esta sesión.
+  router.delete('/yo', soloUsuarios, async (req, res) => {
+    await modelos.usuarios.desactivar(req.usuario.idusuario);
+    if (config.jwtRevocar) await modelos.tokens.revocar(req.jwt.jti, req.usuario.idusuario, req.jwt.exp);
+    res.json({ mensaje: 'Tu cuenta fue desactivada' });
+  });
+
+  // ----- Perfil público de otra persona -----
+  router.get('/:id', async (req, res) => {
+    const perfil = await modelos.usuarios.obtenerPublico(entero(req.params.id, 'id'));
+    if (!perfil) throw new ErrorHttp(404, 'El perfil no existe');
+    res.json(perfil);
+  });
+
+  return router;
+}
+
+  // POST /api/perfiles/yo/foto  (multipart, campo "foto")
+  router.post('/yo/foto', subirFotoPerfil, async (req, res) => {
+    if (!req.file) throw new ErrorHttp(400, 'Falta la foto');
+    const ruta = await rutaPublica('perfiles', req.file);
+    borrarArchivo(await modelos.usuarios.cambiarFoto(req.usuario.idusuario, ruta)); // se borra la foto anterior
+    res.json({ foto_perfil: ruta });
+  });
+
+module.exports = { crearRutas };

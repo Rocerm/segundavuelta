@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Perfil · Segunda Vuelta</title>
+  <link rel="icon" href="/img/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body data-zona="ambos" data-seccion="perfil" data-migas="Perfil" data-pagina="perfil">
+  <main id="pagina" class="contenedor">
+    <h1 id="titulo-perfil">Mi perfil</h1>
+    <div id="ficha" class="panel"></div>
+    <section id="mis-pubs" hidden>
+      <div class="titulo-seccion"><div><h2 style="margin:0">Mis publicaciones</h2><p class="meta" id="resumen-pubs" style="margin:0"></p></div>
+        <a class="boton" href="/nueva-publicacion.html">+ Nueva publicación</a></div>
+      <div class="pestanas pildoras" id="filtro-pubs"></div>
+    </section>
+    <h2 id="titulo-pubs" hidden>Publicaciones disponibles</h2>
+    <div id="lista-pubs" class="cuadricula"></div>
+    <section class="panel" style="margin-top:1.6rem"><h2>Calificaciones recibidas</h2><div id="calificaciones"></div></section>
+  </main>
+  <div id="avisos"></div>
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/reportes.js"></script>
+  <script src="/js/calificaciones.js"></script>
+  <script src="/js/perfil.js"></script>
+</body>
+</html>

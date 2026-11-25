@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar · Segunda Vuelta</title>
+  <link rel="icon" href="/img/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body data-publica="si">
+  <div class="acceso">
+    <section class="acceso-izq">
+      <a class="marca" href="/login.html"><span data-logo></span>Segunda Vuelta</a>
+      <div>
+        <h1>Lo que ya no usas, alguien más lo necesita.</h1>
+        <p>Segunda Vuelta conecta familias para el intercambio y donación de ropa e insumos esenciales para bebés y adultos mayores, promoviendo la dignidad y la confianza.</p>
+      </div>
+      <p class="pie">Para vecinos de la Ciudad de México.</p>
+    </section>
+
+    <section class="acceso-der">
+      <!-- ===== Iniciar sesión (wireframe 2) ===== -->
+      <div id="vista-login">
+        <div class="cambio"><span>¿Primera vez por aquí?</span><button type="button" data-ir="registro">Crear cuenta</button></div>
+        <form class="acceso-form" id="form-login" novalidate>
+          <h2>Iniciar sesión</h2>
+          <p class="suave">Inicia sesión en Segunda Vuelta</p>
+          <label for="log-correo">Correo electrónico</label>
+          <input id="log-correo" type="email" placeholder="tu@correo.com" autocomplete="email" maxlength="150">
+          <label for="log-clave">Contraseña</label>
+          <div class="campo-clave"><input id="log-clave" type="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" maxlength="72"></div>
+          <div class="acciones"><button class="boton ancho" type="submit">Iniciar sesión</button></div>
+          <div id="bloqueo" class="bloqueo" hidden role="alert"></div>
+        </form>
+      </div>
+
+      <!-- ===== Crear cuenta (wireframe 3) ===== -->
+      <div id="vista-registro" hidden>
+        <div class="cambio"><span>¿Ya tienes una cuenta?</span><button type="button" data-ir="login">Iniciar sesión</button></div>
+        <form class="acceso-form" id="form-registro" novalidate>
+          <h2>Crear cuenta</h2>
+          <p class="suave">Únete a Segunda Vuelta</p>
+          <div class="fila">
+            <div><label for="reg-nombre">Nombre</label><input id="reg-nombre" autocomplete="given-name" maxlength="50"></div>
+            <div><label for="reg-apellido">Apellido</label><input id="reg-apellido" autocomplete="family-name" maxlength="50"></div>
+          </div>
+          <label for="reg-correo">Correo electrónico</label>
+          <input id="reg-correo" type="email" autocomplete="email" maxlength="150">
+          <label for="reg-alcaldia">Alcaldía</label>
+          <select id="reg-alcaldia"></select>
+          <label for="reg-clave">Contraseña</label>
+          <div class="campo-clave"><input id="reg-clave" type="password" autocomplete="new-password" maxlength="72"></div>
+          <p class="ayuda">Mínimo 8 caracteres, una letra y un número.</p>
+          <label for="reg-confirmar">Confirmar contraseña</label>
+          <div class="campo-clave"><input id="reg-confirmar" type="password" autocomplete="new-password" maxlength="72"></div>
+          <div class="acciones"><button class="boton ancho" type="submit">Crear cuenta</button></div>
+        </form>
+      </div>
+    </section>
+  </div>
+  <div id="avisos"></div>
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

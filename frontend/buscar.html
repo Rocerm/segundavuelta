@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buscar · Segunda Vuelta</title>
+  <link rel="icon" href="/img/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body data-zona="usuario" data-seccion="buscar" data-migas="Buscar" data-pagina="buscar">
+  <main id="pagina" class="contenedor">
+    <div class="encabezado-pagina"><div><h1>Busca productos de tu interés</h1><p>Explora ropa e insumos para bebés y adultos mayores.</p></div></div>
+    <form id="filtros" role="search">
+      <div class="busqueda"><span class="solo-lectores"><label for="f-q">Buscar artículos</label></span>
+        <input id="f-q" type="search" maxlength="100" placeholder="¿Qué necesitas? Busca pañales, ropa, andadores…"></div>
+      <div class="fila" style="margin-top:.8rem">
+        <div><label for="f-modalidad">Modalidad</label>
+          <select id="f-modalidad"><option value="">Todas</option><option value="donacion">Donación</option><option value="intercambio">Intercambio</option></select></div>
+        <div><label for="f-alcaldia">Zona (alcaldía)</label><select id="f-alcaldia"></select></div>
+        <div><label for="f-condicion">Estado del artículo</label>
+          <select id="f-condicion"><option value="">Todos</option><option value="nuevo">Nuevo</option><option value="como_nuevo">Como nuevo</option><option value="buen_estado">Buen estado</option><option value="con_detalles">Con detalles</option></select></div>
+      </div>
+    </form>
+    <div class="titulo-seccion"><h2>Explorar por categoría</h2></div>
+    <div id="categorias" class="cuadricula" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))"></div>
+    <div class="titulo-seccion"><h2 id="titulo-lista">Recién publicados</h2><button type="button" class="boton claro chico" id="ver-todo" hidden>Quitar filtros</button></div>
+    <div id="lista" class="cuadricula"></div>
+    <div id="paginacion" class="paginacion"></div>
+  </main>
+  <div id="avisos"></div>
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/explorar.js"></script>
+</body>
+</html>

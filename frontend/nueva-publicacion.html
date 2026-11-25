@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Publicar artículo · Segunda Vuelta</title>
+  <link rel="icon" href="/img/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body data-zona="usuario" data-seccion="publicar" data-migas="Publicar" data-pagina="publicar">
+  <main id="pagina" class="contenedor">
+    <div class="encabezado-pagina"><div><h1 id="titulo">Dale una segunda vuelta</h1><p>Comparte los detalles para que tu artículo llegue a quien lo necesita.</p></div></div>
+    <div class="dos-col-form">
+      <form id="form-pub" class="panel" novalidate>
+        <div class="etiqueta-campo">Foto del artículo *</div>
+        <div class="subir-foto">
+          <div class="vista" id="vista"><span class="meta">Sin foto</span></div>
+          <div>
+            <label class="boton claro" for="foto" style="margin:0;cursor:pointer">Seleccionar archivo</label>
+            <input id="foto" type="file" accept="image/jpeg,image/png,image/webp" class="solo-lectores">
+            <p class="ayuda" id="foto-nota">JPG, PNG o WEBP · máximo 3 MB</p>
+            <button type="button" class="boton chico claro" id="quitar-foto" hidden>Quitar foto</button>
+          </div>
+        </div>
+        <p class="error-campo" id="err-foto" hidden></p>
+
+        <label for="nombre_articulo">Nombre del artículo *</label>
+        <input id="nombre_articulo" maxlength="100" placeholder="Pañales de bebé · Talla M">
+        <label for="descripcion">Descripción *</label>
+        <textarea id="descripcion" maxlength="2000" placeholder="Cuenta el estado, la talla, por qué lo compartes…"></textarea>
+
+        <div class="fila">
+          <div><label for="idcategoria">Categoría *</label><select id="idcategoria"></select></div>
+          <div><label for="condicion">Estado *</label>
+            <select id="condicion"><option value="nuevo">Nuevo / sin abrir</option><option value="como_nuevo">Como nuevo</option><option value="buen_estado">Buen estado</option><option value="con_detalles">Con detalles</option></select></div>
+        </div>
+        <div id="nota-sellado" class="nota-sellado" hidden>Esta categoría es de productos sellados: debe ser <strong>nuevo</strong> y llevar <strong>fecha de caducidad</strong>.</div>
+
+        <fieldset>
+          <legend class="etiqueta-campo" style="margin-top:1rem">Modalidad de entrega *</legend>
+          <div class="opciones modalidad">
+            <label class="opcion"><input type="radio" name="modalidad" value="donacion" checked><span class="contenido"><b>Donación</b><span>Entrega sin recibir algo a cambio</span></span><span class="marca-check"></span></label>
+            <label class="opcion"><input type="radio" name="modalidad" value="intercambio"><span class="contenido"><b>Intercambio</b><span>Recibe otro artículo a cambio</span></span><span class="marca-check"></span></label>
+          </div>
+        </fieldset>
+        <p class="ayuda">La modalidad define el flujo de las solicitudes que recibas.</p>
+
+        <div class="fila">
+          <div><label for="caducidad">Caducidad <span class="meta" id="caducidad-nota">(si aplica)</span></label><input id="caducidad" type="date"></div>
+          <div><label for="idalcaldia">Zona de entrega *</label><select id="idalcaldia"></select></div>
+        </div>
+        <div class="acciones"><button class="boton" type="submit">Publicar artículo</button><a class="boton claro" href="/perfil.html">Cancelar</a></div>
+      </form>
+
+      <aside class="panel">
+        <span style="color:var(--azul)"></span>
+        <h3 style="margin-top:.6rem">Una publicación confiable</h3>
+        <ul class="consejos">
+          <li>Usa fotos claras del artículo real.</li>
+          <li>Describe su estado con honestidad.</li>
+          <li>Revisa sellos y fechas de caducidad.</li>
+          <li>No publiques medicamentos ni productos abiertos de higiene.</li>
+          <li>Acuerda la entrega en un punto seguro.</li>
+        </ul>
+        <p class="meta" style="margin-top:1rem;border-top:1px solid var(--borde);padding-top:.8rem">Tu dirección exacta nunca aparece en la publicación.</p>
+      </aside>
+    </div>
+  </main>
+  <div id="avisos"></div>
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/publicar.js"></script>
+</body>
+</html>
