@@ -49,8 +49,8 @@ function crearApp(config, pool) {
   const jwtAuth = crearJWT(config, modelos.tokens);
   const sesion = crearSesion(jwtAuth, modelos.usuarios);
 
-  //Aqui no enteidno
-  //
+
+  // 
   const ctx = {
     modelos, jwtAuth,
     requiereSesion: sesion.requiereSesion,
@@ -64,7 +64,7 @@ function crearApp(config, pool) {
   // server.js las usa para el chat en tiempo real y la limpieza de tokens.
   app.locals.contexto = { modelos, jwtAuth, sesion };
 
-  // ---- Rutas de la API ----
+  // Rutas de la API
   app.use('/api/auth', require('./rutas/auth.rutas').crearRutas(ctx));
   app.use('/api/catalogos', require('./rutas/catalogos.rutas').crearRutas(ctx));
   app.use('/api/perfiles', require('./rutas/perfiles.rutas').crearRutas(ctx));
@@ -75,11 +75,10 @@ function crearApp(config, pool) {
   app.use('/api/reportes', require('./rutas/reportes.rutas').crearRutas(ctx));
   app.use('/api/admin', require('./rutas/admin.rutas').crearRutas(ctx));
 
-  // ---- Archivos estáticos ----
-  // Las fotos subidas las sirve ESTE backend (el frontend las pide con la IP del backend).
+  // rchivos estáticos 
+ 
   app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-  // Modo "todo junto" (opcional, para desarrollo en una sola compu): SERVIR_FRONT=si en el .env
-  // hace que este servidor también entregue la carpeta ../frontend. En la escuela se deja apagado.
+ 
   if (process.env.SERVIR_FRONT === 'si') app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
   // Cualquier /api que no exista.

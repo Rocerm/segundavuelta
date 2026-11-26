@@ -100,7 +100,7 @@ function crearModeloPublicaciones(pool) {
     return f;
   }
 
-  // Las que puede ofrecer en un intercambio: suyas, disponibles, de modalidad intercambio.
+  //
   async function ofrecibles(idusuario) {
     const [f] = await pool.query(
       `SELECT idpublicacion, nombre_articulo FROM publicaciones
@@ -110,7 +110,7 @@ function crearModeloPublicaciones(pool) {
     return f;
   }
 
-  // Detalle completo (incluye datos y reputación del dueño). Devuelve también las eliminadas; la ruta decide si las oculta.
+  // 
   async function obtener(idpublicacion) {
     const [f] = await pool.query(
       `SELECT p.*, c.nombre AS categoria, c.requiere_sellado, a.nombre AS alcaldia,
