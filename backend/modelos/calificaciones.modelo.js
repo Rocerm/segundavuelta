@@ -11,8 +11,7 @@ function entero0a5(valor, nombre) {
 }
 
 function crearModeloCalificaciones(pool) {
-  // Lo que me falta calificar (viene de vista_calificaciones_pendientes).
-  // pide_veracidad = false cuando soy el dueño de una DONACIÓN: quien recibe no publicó nada, no hay qué verificar.
+ 
   async function pendientes(idusuario) {
     const [f] = await pool.query(
       `SELECT v.idsolicitud, v.idevaluado, u.nombre AS evaluado_nombre, u.apellido AS evaluado_apellido,
@@ -38,14 +37,13 @@ function crearModeloCalificaciones(pool) {
     if (!sol) throw new ErrorHttp(404, 'La solicitud no existe');
     if (sol.estado !== 'completada') throw new ErrorHttp(409, 'Solo se califica cuando la entrega ya se completó');
 
-    // Se califica a la OTRA persona de la solicitud.
+   
     let idevaluado;
     if (idevaluador === sol.iddueno) idevaluado = sol.idsolicitante;
     else if (idevaluador === sol.idsolicitante) idevaluado = sol.iddueno;
     else throw new ErrorHttp(403, 'No participaste en esta solicitud');
 
-    // Veracidad: NULL solo cuando el dueño califica a quien recibe una donación.
-    // (undefined y '' se tratan como "no viene".)
+   
     const sinVeracidad = idevaluador === sol.iddueno && sol.modalidad === 'donacion';
     const veracidadVacia = veracidad === null || veracidad === undefined || veracidad === '';
     if (sinVeracidad && !veracidadVacia) throw new ErrorHttp(400, 'En una donación el dueño no califica la veracidad');
@@ -67,7 +65,6 @@ function crearModeloCalificaciones(pool) {
     }
   }
 
-  // Calificaciones que recibió una persona (para su perfil).
   async function recibidas(idevaluado) {
     const [f] = await pool.query(
       `SELECT c.idcalificacion, c.puntualidad, c.actitud, c.veracidad, c.comentario, c.fecha,

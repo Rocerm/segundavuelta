@@ -1,9 +1,5 @@
-// Consultas a solicitudes. Flujo del estado:  pendiente → aceptada → completada   (o pendiente/aceptada → rechazada)
-//  - El DUEÑO de la publicación acepta, rechaza y completa (confirma la entrega).
-//  - El SOLICITANTE crea la solicitud (y en intercambios ofrece una publicación suya).
 const { ErrorHttp } = require('../utilidades');
 
-// Datos de la solicitud + de la publicación pedida + de ambas personas.
 const DETALLE = `SELECT s.*, p.nombre_articulo AS pub_nombre, p.foto AS pub_foto, p.modalidad AS pub_modalidad, p.disponibilidad AS pub_disponibilidad,
     p.idusuario AS iddueno, d.nombre AS dueno_nombre, d.apellido AS dueno_apellido,
     d.foto_perfil AS dueno_foto, rd.puntos_confianza AS dueno_puntos,
@@ -19,7 +15,6 @@ const DETALLE = `SELECT s.*, p.nombre_articulo AS pub_nombre, p.foto AS pub_foto
   LEFT JOIN vista_reputacion rt ON rt.idusuario = t.idusuario
   LEFT JOIN publicaciones o ON o.idpublicacion = s.idpublicacion_ofrecida`;
 
-// Transiciones permitidas: nuevo estado → estados desde los que se puede llegar.
 const PERMITIDO = {
   aceptada: ['pendiente'],
   rechazada: ['pendiente', 'aceptada'],
@@ -32,7 +27,6 @@ function crearModeloSolicitudes(pool) {
     return f[0] || null;
   }
 
-  // ¿Esta persona participa en la solicitud? (el dueño o el solicitante)
   function esParticipante(solicitud, idusuario) {
     return solicitud.iddueno === idusuario || solicitud.idsolicitante === idusuario;
   }
@@ -62,7 +56,6 @@ function crearModeloSolicitudes(pool) {
       if (mias.length === 0) throw new ErrorHttp(400, 'Lo que ofreces debe ser una publicación tuya, disponible y de intercambio');
       ofrecida = idpublicacion_ofrecida;
     }
-    // En una donación no se ofrece nada (idpublicacion_ofrecida se queda NULL).
 
     try {
       const [r] = await pool.query(
@@ -77,13 +70,11 @@ function crearModeloSolicitudes(pool) {
     }
   }
 
-  // Las que yo mandé.
   async function enviadas(idusuario) {
     const [f] = await pool.query(`${DETALLE} WHERE s.idsolicitante = ? ORDER BY s.fecha_solicitud DESC`, [idusuario]);
     return f;
   }
 
-  // Las que me llegaron a mis publicaciones (opcionalmente solo de una publicación).
   async function recibidas(idusuario, idpublicacion) {
     const [f] = idpublicacion
       ? await pool.query(`${DETALLE} WHERE p.idusuario = ? AND s.idpublicacion = ? ORDER BY s.fecha_solicitud DESC`, [idusuario, idpublicacion])
@@ -91,7 +82,6 @@ function crearModeloSolicitudes(pool) {
     return f;
   }
 
-  // Cambia el estado. Solo el dueño, y solo con las transiciones permitidas.
   async function cambiarEstado(idsolicitud, idusuario, nuevo) {
     if (!Object.prototype.hasOwnProperty.call(PERMITIDO, nuevo)) throw new ErrorHttp(400, 'Estado no válido');
 
@@ -107,7 +97,6 @@ function crearModeloSolicitudes(pool) {
     }
 
     if (nuevo !== 'completada') {
-      // El UPDATE vuelve a exigir el estado anterior: si otra petición ya lo cambió, no se pisa.
       const [r] = await pool.query(
         'UPDATE solicitudes SET estado = ? WHERE idsolicitud = ? AND estado = ?',
         [nuevo, idsolicitud, sol.estado]
@@ -116,7 +105,6 @@ function crearModeloSolicitudes(pool) {
       return;
     }
 
-    // Completar = el dueño confirmó la entrega. Todo en una transacción:
     const conexion = await pool.getConnection();
     try {
       await conexion.beginTransaction();
@@ -132,8 +120,6 @@ function crearModeloSolicitudes(pool) {
       if (sol.idpublicacion_ofrecida) {
         await conexion.query("UPDATE publicaciones SET disponibilidad = 'no_disponible' WHERE idpublicacion = ?", [sol.idpublicacion_ofrecida]);
       }
-      // Se rechazan las demás solicitudes abiertas que involucran alguno de esos artículos,
-      // ya sea pidiéndolos o ofreciéndolos (ya no están disponibles).
       const ids = [sol.idpublicacion, sol.idpublicacion_ofrecida].filter(Boolean);
       const marcas = ids.map(() => '?').join(', ');
       await conexion.query(

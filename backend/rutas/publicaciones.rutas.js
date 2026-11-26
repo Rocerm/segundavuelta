@@ -25,7 +25,6 @@ function crearRutas({ modelos, requiereSesion, soloUsuarios, subirFotoPublicacio
     return datos;
   }
 
-  // GET /api/publicaciones?q=&categoria=&alcaldia=&modalidad=&condicion=&usuario=&intereses=1&excluirPropias=1&pagina=1
   router.get('/', async (req, res) => {
     const q = req.query;
     res.json(await pubs.explorar({
@@ -41,13 +40,10 @@ function crearRutas({ modelos, requiereSesion, soloUsuarios, subirFotoPublicacio
     }, req.usuario.idusuario));
   });
 
-  // GET /api/publicaciones/mias → todas las mías (para administrarlas)
   router.get('/mias', soloUsuarios, async (req, res) => res.json(await pubs.listarPropias(req.usuario.idusuario)));
 
-  // GET /api/publicaciones/ofrecibles → las mías que puedo ofrecer en un intercambio
   router.get('/ofrecibles', soloUsuarios, async (req, res) => res.json(await pubs.ofrecibles(req.usuario.idusuario)));
 
-  // GET /api/publicaciones/:id
   router.get('/:id', async (req, res) => {
     const p = await pubs.obtener(entero(req.params.id, 'id'));
     const esDueno = p && p.idusuario === req.usuario.idusuario;

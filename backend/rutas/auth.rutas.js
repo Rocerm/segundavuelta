@@ -1,10 +1,8 @@
-// /api/auth → registro, login, logout, "quién soy" y apelaciones. Aquí nace y muere el JWT.
 const express = require('express');
 const config = require('../config');
 const { ErrorHttp, texto, nombrePersona, correo, contrasena, entero } = require('../utilidades');
 
-// ---------- Freno a la fuerza bruta: máximo 8 intentos fallidos por IP+correo cada 10 minutos ----------
-const MAX_FALLOS = 8;
+const MAX_FALLOS = 5;
 const VENTANA_MS = 10 * 60 * 1000;
 const fallos = new Map(); // "ip|correo" → { n, desde }
 function revisarFreno(clave) {
@@ -23,13 +21,12 @@ function anotarFallo(clave) {
 function crearRutas({ modelos, jwtAuth, requiereSesion }) {
   const router = express.Router();
 
-  // Lo que se le manda al navegador del usuario (nunca el hash de la contraseña).
+
   const seguro = (u) => ({
     idusuario: u.idusuario, nombre: u.nombre, apellido: u.apellido, correo: u.correo,
     rol: u.rol, idalcaldia: u.idalcaldia, foto_perfil: u.foto_perfil || null,
   });
 
-  // Comprueba correo + contraseña y aplica el freno. Regresa el usuario o lanza 401.
   async function credenciales(req) {
     const b = req.body || {};
     const correoTexto = typeof b.correo === 'string' ? b.correo.trim().toLowerCase().slice(0, 150) : '';
@@ -45,7 +42,6 @@ function crearRutas({ modelos, jwtAuth, requiereSesion }) {
     return usuario;
   }
 
-  // POST /api/auth/registro  { nombre, apellido, correo, contrasena, idalcaldia }
   router.post('/registro', async (req, res) => {
     const b = req.body || {};
     const datos = {
@@ -61,11 +57,10 @@ function crearRutas({ modelos, jwtAuth, requiereSesion }) {
     res.status(201).json({ token: jwtAuth.firmar(usuario), usuario: seguro(usuario) });
   });
 
-  // POST /api/auth/login  { correo, contrasena }
   router.post('/login', async (req, res) => {
     const usuario = await credenciales(req);
 
-    // Cuenta con restricción: se le dice POR QUÉ (tipo, motivo, hasta cuándo) y si ya apeló.
+    
     if (!usuario.activo || usuario.suspendido_hasta) {
       const sancion = await modelos.moderacion.sancionVigente(usuario.idusuario);
       if (sancion) {
@@ -77,8 +72,7 @@ function crearRutas({ modelos, jwtAuth, requiereSesion }) {
     res.json({ token: jwtAuth.firmar(usuario), usuario: seguro(usuario) });
   });
 
-  // POST /api/auth/apelaciones  { correo, contrasena, mensaje }
-  // Un usuario baneado/suspendido no puede iniciar sesión, así que se identifica con su correo y contraseña.
+ 
   router.post('/apelaciones', async (req, res) => {
     const usuario = await credenciales(req);
     const mensaje = texto((req.body || {}).mensaje, 'Tu explicación', { min: 10, max: 500, multilinea: true });
@@ -88,7 +82,7 @@ function crearRutas({ modelos, jwtAuth, requiereSesion }) {
     res.status(201).json({ mensaje: 'Recibimos tu explicación. Un administrador la revisará.' });
   });
 
-  // POST /api/auth/logout → mete el token en la lista negra para que ya no sirva.
+
   router.post('/logout', requiereSesion, async (req, res) => {
     if (config.jwtRevocar) {
       await modelos.tokens.revocar(req.jwt.jti, req.usuario.idusuario, req.jwt.exp);
@@ -97,7 +91,6 @@ function crearRutas({ modelos, jwtAuth, requiereSesion }) {
     res.json({ mensaje: 'Sesión cerrada (el servidor no guarda nada, el token vence solo)', revocado: false });
   });
 
-  // GET /api/auth/yo → perfil propio, sirve para saber si el token sigue vivo.
   router.get('/yo', requiereSesion, async (req, res) => {
     res.json(await modelos.usuarios.obtenerPropio(req.usuario.idusuario));
   });

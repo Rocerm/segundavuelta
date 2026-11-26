@@ -1,12 +1,11 @@
-// /api/reportes → cualquier usuario reporta una publicación o un perfil. (El admin los atiende en /api/admin.)
 const express = require('express');
 const { texto, entero } = require('../utilidades');
 
 function crearRutas({ modelos, requiereSesion, soloUsuarios }) {
   const router = express.Router();
-  router.use(requiereSesion, soloUsuarios); // el admin no usa esta parte
+  router.use(requiereSesion, soloUsuarios);
 
-  // POST /api/reportes  { idpublicacion | idusuario_reportado, idmotivo, comentario? }
+ 
   router.post('/', async (req, res) => {
     const b = req.body || {};
     const id = await modelos.moderacion.crearReporte(req.usuario.idusuario, {

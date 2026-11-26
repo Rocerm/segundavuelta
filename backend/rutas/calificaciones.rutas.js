@@ -4,12 +4,10 @@ const { ErrorHttp, texto, entero } = require('../utilidades');
 
 function crearRutas({ modelos, requiereSesion, soloUsuarios }) {
   const router = express.Router();
-  router.use(requiereSesion, soloUsuarios); // el admin no usa esta parte
+  router.use(requiereSesion, soloUsuarios); 
 
-  // GET /api/calificaciones/pendientes → lo que me falta calificar
   router.get('/pendientes', async (req, res) => res.json(await modelos.calificaciones.pendientes(req.usuario.idusuario)));
 
-  // POST /api/calificaciones  { idsolicitud, puntualidad, actitud, veracidad?, comentario? }  (cada criterio de 0 a 5)
   router.post('/', async (req, res) => {
     const b = req.body || {};
     await modelos.calificaciones.crear(req.usuario.idusuario, {
@@ -22,7 +20,6 @@ function crearRutas({ modelos, requiereSesion, soloUsuarios }) {
     res.status(201).json({ mensaje: 'Calificación guardada' });
   });
 
-  // GET /api/calificaciones/usuario/:id → las que recibió esa persona
   router.get('/usuario/:id', async (req, res) => {
     const id = entero(req.params.id, 'id');
     if (!(await modelos.usuarios.obtenerPublico(id))) throw new ErrorHttp(404, 'El perfil no existe');

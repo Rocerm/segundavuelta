@@ -6,21 +6,18 @@ function crearRutas({ modelos, requiereSesion, soloUsuarios }) {
   const router = express.Router();
   router.use(requiereSesion, soloUsuarios); // el admin no usa esta parte
 
-  // Solo participan dueño y solicitante. Se responde 404 (no 403) para no revelar que la solicitud existe.
   async function solicitudDelChat(req) {
     const s = await modelos.solicitudes.obtener(entero(req.params.idsolicitud, 'idsolicitud'));
     if (!s || !modelos.solicitudes.esParticipante(s, req.usuario.idusuario)) throw new ErrorHttp(404, 'La solicitud no existe');
     return s;
   }
 
-  // GET /api/mensajes/solicitud/:idsolicitud?despues=10
   router.get('/solicitud/:idsolicitud', async (req, res) => {
     const s = await solicitudDelChat(req);
     const despues = entero(req.query.despues, 'despues', { min: 0, opcional: true }) || 0;
     res.json(await modelos.mensajes.listar(s.idsolicitud, despues));
   });
 
-  // POST /api/mensajes/solicitud/:idsolicitud  { contenido }
   router.post('/solicitud/:idsolicitud', async (req, res) => {
     const s = await solicitudDelChat(req);
     // Como en el wireframe: el chat se habilita cuando el dueño acepta la solicitud.

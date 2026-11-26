@@ -3,7 +3,6 @@ const path = require('path');
 const { Pool } = require('pg');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-// Convierte placeholders '?' a '$1, $2, ...' respetando literales entre comillas simples.
 function convertirPlaceholders(sql) {
   let indice = 0;
   let enComilla = false;

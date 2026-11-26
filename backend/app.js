@@ -23,13 +23,13 @@ const { crearCors } = require('./middlewares/cors.middleware');
 
 function crearApp(config, pool) {
   const app = express();
-  app.set('trust proxy', 1); // Lei que esto es para giardar una ip y saber quein se pasas de rosca 
+  app.set('trust proxy', 1); 
   app.use(crearCors(process.env.CORS_ORIGINS)); 
   app.use(express.json({ limit: '100kb' }));
 
   const limitadorAuth = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 5, // para que no se pasen de rosca jeje
+    windowMs: 15 * 60 * 1000, 
+    max: 5, 
     message: { error: 'Demasiados intentos, intenta más tarde' }
   });
 
@@ -49,8 +49,7 @@ function crearApp(config, pool) {
   const jwtAuth = crearJWT(config, modelos.tokens);
   const sesion = crearSesion(jwtAuth, modelos.usuarios);
 
-
-  // 
+  
   const ctx = {
     modelos, jwtAuth,
     requiereSesion: sesion.requiereSesion,
@@ -61,7 +60,7 @@ function crearApp(config, pool) {
     subirFotoPublicacion: subirFoto('publicaciones'),
   };
 
-  // server.js las usa para el chat en tiempo real y la limpieza de tokens.
+ 
   app.locals.contexto = { modelos, jwtAuth, sesion };
 
   // Rutas de la API
@@ -75,17 +74,15 @@ function crearApp(config, pool) {
   app.use('/api/reportes', require('./rutas/reportes.rutas').crearRutas(ctx));
   app.use('/api/admin', require('./rutas/admin.rutas').crearRutas(ctx));
 
-  // rchivos estáticos 
  
-  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+ 
  
   if (process.env.SERVIR_FRONT === 'si') app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
-  // Cualquier /api que no exista.
+
   app.use('/api', (req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
 
-  // ---- Manejador de errores: convierte cualquier error en JSON con el código correcto ----
-  // (En Express 5 los errores de funciones async llegan aquí solos, sin try/catch.)
+
   app.use((error, req, res, next) => {
     if (error instanceof ErrorHttp) return res.status(error.status).json({ error: error.message, ...(error.datos || {}) });
     if (error instanceof multer.MulterError) {
@@ -93,7 +90,6 @@ function crearApp(config, pool) {
       return res.status(400).json({ error: msg });
     }
     if (error.type === 'entity.parse.failed') return res.status(400).json({ error: 'El cuerpo no es un JSON válido' });
-    // Una llave foránea que no existe en PostgreSQL (23503).
     if (error.code === '23503') return res.status(400).json({ error: 'Uno de los datos enviados no existe' });
     console.error(error);
     res.status(500).json({ error: 'Error en el servidor' });

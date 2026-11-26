@@ -1,11 +1,3 @@
-// Utilidades compartidas: un error con código HTTP y los VALIDADORES de datos de entrada.
-// Los modelos y las rutas lanzan ErrorHttp; el manejador de errores de app.js lo convierte en respuesta JSON.
-//
-// SOBRE LAS INYECCIONES:
-//  1) SQL: TODAS las consultas usan "?" (consultas parametrizadas). Con eso, un texto como  '; DROP DATABASE x; --
-//     se guarda como simple texto y jamás se ejecuta. Esa es la defensa real.
-//  2) HTML/JS (XSS): el frontend escapa todo lo que muestra (esc() en api.js).
-//  3) Capa extra: esSospechoso() rechaza textos que contienen patrones típicos de ataque, para que ni siquiera se guarden.
 
 class ErrorHttp extends Error {
   // 'datos' (opcional) son campos extra que se mandan en el JSON de error (por ejemplo, el detalle de una sanción).
@@ -40,7 +32,6 @@ function esSospechoso(t) {
   return PATRONES_SOSPECHOSOS.some((patron) => patron.test(t));
 }
 
-// Limpia un texto: normaliza acentos (NFC), quita caracteres de control y, si es de una línea, junta los espacios repetidos.
 function limpiar(valor, multilinea) {
   let t = String(valor).normalize('NFC');
   t = t.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u200B-\u200F\u2028\u2029\uFEFF]/g, ''); // control y "invisibles"
@@ -90,8 +81,8 @@ function correo(valor) {
   return t;
 }
 
-// Contraseña nueva: 8 a 72 caracteres (bcrypt solo lee 72), sin espacios, al menos una letra y un número.
-// NO se recorta ni se limpia: se guarda tal cual (solo se guarda su hash).
+// Contraseña nueva: 8 a 72 caracteres (bcrypt solo lee 72), 
+
 function contrasena(valor, campo = 'La contraseña') {
   if (typeof valor !== 'string' || valor === '') throw new ErrorHttp(400, `${campo} es obligatoria`);
   if (valor.length < 8 || valor.length > 72) throw new ErrorHttp(400, `${campo} debe tener entre 8 y 72 caracteres`);
@@ -100,7 +91,7 @@ function contrasena(valor, campo = 'La contraseña') {
   return valor;
 }
 
-// Número entero (acepta "5" como texto, porque los formularios mandan texto).
+
 function entero(valor, campo, { min = 1, max = 2147483647, opcional = false } = {}) {
   if (valor === undefined || valor === null || valor === '') {
     if (opcional) return null;
@@ -116,7 +107,6 @@ function booleano(valor) {
   return valor === true || valor === 1 || ['true', '1', 'on', 'si', 'sí'].includes(String(valor).toLowerCase());
 }
 
-// El valor debe ser uno de la lista permitida (para los enum de la base). Si es opcional y viene vacío regresa null.
 function enumerado(valor, campo, permitidos, { opcional = false } = {}) {
   if (opcional && (valor === undefined || valor === null || valor === '')) return null;
   if (typeof valor !== 'string' || !permitidos.includes(valor)) {
@@ -125,7 +115,6 @@ function enumerado(valor, campo, permitidos, { opcional = false } = {}) {
   return valor;
 }
 
-// Fecha en formato AAAA-MM-DD que además exista de verdad (rechaza 2026-02-31).
 function fecha(valor, campo, { opcional = false } = {}) {
   if (valor === undefined || valor === null || valor === '') {
     if (opcional) return null;

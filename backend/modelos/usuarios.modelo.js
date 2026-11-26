@@ -1,22 +1,17 @@
-// Consultas a usuarios, usuario_categoria (intereses) y alcaldías del perfil.
-// Siempre con ? (consulta parametrizada), nunca pegando texto en el SQL.
+
 const bcrypt = require('bcryptjs');
 const config = require('../config');
 const { ErrorHttp } = require('../utilidades');
 
-// Columnas que se pueden mostrar sin riesgo (NUNCA contrasena_hash).
 const PUBLICO = `u.idusuario, u.nombre, u.apellido, u.foto_perfil, u.biografia, u.fecha_registro,
   u.idalcaldia, a.nombre AS alcaldia,
   r.total_calificaciones, r.puntos_confianza`;
 
-// Hash de relleno con el MISMO costo que los reales: así verificar() tarda igual
-// exista o no el correo, y no revela qué cuentas están registradas.
+
 const HASH_FALSO = bcrypt.hashSync('relleno-para-igualar-tiempos', config.bcryptRondas);
 
-// bcrypt solo usa los primeros 72 bytes de la contraseña.
 const MAX_BYTES_CONTRASENA = 72;
 
-// Los correos se guardan y se buscan en minúsculas y sin espacios alrededor.
 function normalizarCorreo(correo) {
   return String(correo || '').trim().toLowerCase();
 }
@@ -29,7 +24,6 @@ function crearModeloUsuarios(pool) {
       throw new ErrorHttp(400, 'La contraseña es demasiado larga');
     }
 
-    // Evita duplicados aunque el correo difiera solo en mayúsculas (cuentas anteriores a la normalización).
     const [existe] = await pool.query('SELECT 1 FROM usuarios WHERE lower(correo) = ?', [correoNorm]);
     if (existe.length > 0) throw new ErrorHttp(409, 'Ese correo ya está registrado');
 
@@ -47,7 +41,6 @@ function crearModeloUsuarios(pool) {
     }
   }
 
-  // Regresa el usuario (sin el hash) si la contraseña es correcta, o null si no.
   async function verificar(correo, contrasena) {
     const [filas] = await pool.query(
       `SELECT u.idusuario, u.nombre, u.apellido, u.correo, u.contrasena_hash, u.rol, u.activo, u.idalcaldia, u.foto_perfil,
@@ -65,7 +58,6 @@ function crearModeloUsuarios(pool) {
     return (await bcrypt.compare(String(contrasena || ''), contrasena_hash)) ? usuario : null;
   }
 
-  // Lo que necesita el middleware en CADA petición: ¿existe, está activo, está suspendido?
   async function estadoAcceso(idusuario) {
     const [filas] = await pool.query(
       `SELECT u.idusuario, u.nombre, u.apellido, u.rol, u.activo, u.idalcaldia,
@@ -89,7 +81,6 @@ function crearModeloUsuarios(pool) {
     return filas[0] || null;
   }
 
-  // Perfil propio: lo mismo + correo, rol e intereses.
   async function obtenerPropio(idusuario) {
     const [filas] = await pool.query(
       `SELECT ${PUBLICO}, u.correo, u.rol FROM usuarios u
@@ -115,7 +106,6 @@ function crearModeloUsuarios(pool) {
     }
   }
 
-  // Cambia la foto y devuelve la ruta anterior (para borrar ese archivo).
   async function cambiarFoto(idusuario, ruta) {
     const [antes] = await pool.query('SELECT foto_perfil FROM usuarios WHERE idusuario = ?', [idusuario]);
     await pool.query('UPDATE usuarios SET foto_perfil = ? WHERE idusuario = ?', [ruta, idusuario]);
@@ -154,8 +144,7 @@ function crearModeloUsuarios(pool) {
     }
   }
 
-  // "Eliminar cuenta" = activo = false (borrado lógico). Sus publicaciones dejan de mostrarse
-  // y las solicitudes abiertas donde participa (como solicitante, como dueño o como oferta) se rechazan.
+
   async function desactivar(idusuario) {
     const conexion = await pool.getConnection();
     try {

@@ -1,25 +1,18 @@
-// Chat en tiempo real con WebSocket (librería ws). El navegador se conecta a  ws://servidor/ws?token=<JWT>
-//
-// Mensajes que manda el navegador:   { tipo: 'unirse',  idsolicitud }
-//                                    { tipo: 'mensaje', idsolicitud, contenido }
-// Mensajes que manda el servidor:    { tipo: 'unido', idsolicitud } | { tipo: 'mensaje', mensaje } | { tipo: 'error', error }
+
 const { WebSocketServer } = require('ws');
 const { ErrorHttp } = require('../utilidades');
 
 function crearSocketChat(servidorHttp, { sesion, jwtAuth, modelos }) {
   const wss = new WebSocketServer({ server: servidorHttp, path: '/ws' });
-  const salas = new Map(); // idsolicitud → conjunto de conexiones que están viendo ese chat
-
+  const salas = new Map(); 
   function enviar(ws, objeto) {
     if (ws.readyState === ws.OPEN) ws.send(JSON.stringify(objeto));
   }
 
-  // Manda un mensaje a todos los conectados a esa solicitud (la usa también la ruta HTTP).
   function difundir(idsolicitud, mensaje) {
     for (const ws of salas.get(idsolicitud) || []) enviar(ws, { tipo: 'mensaje', mensaje });
   }
 
-  // El usuario debe participar en la solicitud (dueño o solicitante).
   async function solicitudPermitida(ws, idsolicitud) {
     const s = await modelos.solicitudes.obtener(Number(idsolicitud));
     if (!s || !modelos.solicitudes.esParticipante(s, ws.usuario.idusuario)) throw new ErrorHttp(404, 'La solicitud no existe');
@@ -27,7 +20,6 @@ function crearSocketChat(servidorHttp, { sesion, jwtAuth, modelos }) {
   }
 
   wss.on('connection', async (ws, req) => {
-    // 1) Autenticar con el JWT que viene en la URL (el navegador no puede mandar encabezados en un WebSocket).
     try {
       const token = new URL(req.url, 'http://localhost').searchParams.get('token');
       const { jwt, usuario } = await sesion.autenticar(token);
@@ -44,7 +36,6 @@ function crearSocketChat(servidorHttp, { sesion, jwtAuth, modelos }) {
     ws.on('message', async (bruto) => {
       try {
         const datos = JSON.parse(bruto.toString());
-        // Un token vencido o revocado deja de servir también en una conexión ya abierta.
         await jwtAuth.verificar(ws.token);
 
         if (datos.tipo === 'unirse') {
@@ -66,7 +57,6 @@ function crearSocketChat(servidorHttp, { sesion, jwtAuth, modelos }) {
       }
     });
 
-    // Al desconectarse se le saca de todas las salas.
     ws.on('close', () => {
       for (const id of ws.salas) {
         const sala = salas.get(id);

@@ -5,10 +5,8 @@ const { ErrorHttp } = require('../utilidades');
 
 const CONDICIONES = ['nuevo', 'como_nuevo', 'buen_estado', 'con_detalles'];
 const MODALIDADES = ['donacion', 'intercambio'];
-// Lo único que se puede poner con cambiarDisponibilidad ('eliminada' solo se logra con eliminar()).
 const DISPONIBILIDADES = ['disponible', 'no_disponible'];
 
-// Columnas que se ven en las tarjetas del listado.
 const TARJETA = `p.idpublicacion, p.nombre_articulo, p.foto, p.condicion, p.modalidad, p.caducidad,
   p.disponibilidad, p.fecha_creacion, p.idusuario,
   c.nombre AS categoria, a.nombre AS alcaldia, u.nombre AS dueno_nombre, u.apellido AS dueno_apellido`;
@@ -17,25 +15,20 @@ const UNIONES = `FROM publicaciones p
   JOIN alcaldias a ON a.idalcaldia = p.idalcaldia
   JOIN usuarios u ON u.idusuario = p.idusuario`;
 
-// Escapa % _ \ para que el texto buscado no actúe como comodín dentro de ILIKE.
 function escaparLike(texto) {
   return String(texto).replace(/[\\%_]/g, '\\$&');
 }
 
-// Número de página válido (mínimo 1) aunque llegue texto o NaN.
 function paginaValida(valor) {
   const n = Number.parseInt(valor, 10);
   return Number.isInteger(n) && n > 0 ? n : 1;
 }
 
-// Fecha de hoy (AAAA-MM-DD) en la zona horaria de la Ciudad de México, no en UTC.
 function hoyLocal() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
 }
 
 function crearModeloPublicaciones(pool) {
-  // Explorar: solo publicaciones disponibles, no vencidas y de cuentas activas.
-  // filtros: q, idcategoria, idalcaldia, modalidad, condicion, idusuario (dueño), soloIntereses, excluirPropias, pagina
   async function explorar(filtros, idSolicitante) {
     const donde = ["p.disponibilidad = 'disponible'", 'u.activo = true', '(p.caducidad IS NULL OR p.caducidad >= CURRENT_DATE)'];
     const params = [];
@@ -66,8 +59,6 @@ function crearModeloPublicaciones(pool) {
     return { publicaciones, total, pagina, porPagina };
   }
 
-  // ADMIN: todas las publicaciones sin importar su estado (disponibles, no disponibles y eliminadas), con o sin sanción.
-  // filtros: q, disponibilidad, idcategoria, pagina
   async function listarTodas(filtros) {
     const donde = ['1 = 1'];
     const params = [];
@@ -91,7 +82,6 @@ function crearModeloPublicaciones(pool) {
     return { publicaciones, total, pagina, porPagina };
   }
 
-  // Las publicaciones de un usuario para que las administre: todas menos las eliminadas.
   async function listarPropias(idusuario) {
     const [f] = await pool.query(
       `SELECT ${TARJETA} ${UNIONES} WHERE p.idusuario = ? AND p.disponibilidad <> 'eliminada' ORDER BY p.fecha_creacion DESC`,
@@ -100,7 +90,6 @@ function crearModeloPublicaciones(pool) {
     return f;
   }
 
-  //
   async function ofrecibles(idusuario) {
     const [f] = await pool.query(
       `SELECT idpublicacion, nombre_articulo FROM publicaciones
@@ -110,7 +99,7 @@ function crearModeloPublicaciones(pool) {
     return f;
   }
 
-  // 
+  
   async function obtener(idpublicacion) {
     const [f] = await pool.query(
       `SELECT p.*, c.nombre AS categoria, c.requiere_sellado, a.nombre AS alcaldia,
@@ -124,10 +113,6 @@ function crearModeloPublicaciones(pool) {
     return f[0] || null;
   }
 
-  // Reglas del negocio. La BD no puede validarlas, por eso se hacen aquí:
-  //  - condicion y modalidad deben ser de la lista.
-  //  - Si la categoría NO permite_caducidad: no puede llevar fecha de caducidad.
-  //  - Si la categoría requiere_sellado: condición 'nuevo' y fecha de caducidad obligatoria y futura.
   async function validar({ idcategoria, condicion, modalidad, caducidad }) {
     if (!CONDICIONES.includes(condicion)) throw new ErrorHttp(400, 'Condición no válida');
     if (!MODALIDADES.includes(modalidad)) throw new ErrorHttp(400, 'Modalidad no válida');
@@ -140,7 +125,6 @@ function crearModeloPublicaciones(pool) {
       if (!caducidad) throw new ErrorHttp(400, 'Esta categoría exige fecha de caducidad');
     }
     if (caducidad) {
-      // Se compara como texto AAAA-MM-DD contra la fecha de hoy en Ciudad de México (no en UTC).
       if (String(caducidad).slice(0, 10) < hoyLocal()) throw new ErrorHttp(400, 'La fecha de caducidad ya pasó');
     }
   }
@@ -154,7 +138,7 @@ function crearModeloPublicaciones(pool) {
     return r.insertId;
   }
 
-  // Si foto viene null, se conserva la que ya tenía. Una publicación eliminada ya no se edita.
+ 
   async function actualizar(idpublicacion, d) {
     const [r] = await pool.query(
       `UPDATE publicaciones SET idcategoria = ?, idalcaldia = ?, nombre_articulo = ?, descripcion = ?,
@@ -165,7 +149,7 @@ function crearModeloPublicaciones(pool) {
     if (r.affectedRows === 0) throw new ErrorHttp(404, 'La publicación no existe');
   }
 
-  // Solo alterna entre 'disponible' y 'no_disponible'; una eliminada no se puede reactivar.
+
   async function cambiarDisponibilidad(idpublicacion, disponibilidad) {
     if (!DISPONIBILIDADES.includes(disponibilidad)) throw new ErrorHttp(400, 'Disponibilidad no válida');
     const [r] = await pool.query(
@@ -175,8 +159,7 @@ function crearModeloPublicaciones(pool) {
     if (r.affectedRows === 0) throw new ErrorHttp(404, 'La publicación no existe');
   }
 
-  // Borrado lógico + las solicitudes abiertas donde participa (pedida u ofrecida) se rechazan:
-  // ya no hay nada que entregar.
+ 
   async function eliminar(idpublicacion) {
     const conexion = await pool.getConnection();
     try {
