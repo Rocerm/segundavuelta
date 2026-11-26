@@ -9,7 +9,6 @@ function crearRutas({ modelos, requiereSesion, soloUsuarios, subirFotoPublicacio
   router.use(requiereSesion);
   const pubs = modelos.publicaciones;
 
-  // Lee y valida los campos del formulario (sirve para crear y para editar).
   async function leerFormulario(req) {
     const b = req.body || {};
     const datos = {
@@ -60,7 +59,6 @@ function crearRutas({ modelos, requiereSesion, soloUsuarios, subirFotoPublicacio
     res.json(p);
   });
 
-  // POST /api/publicaciones (multipart: campos del formulario + "foto" obligatoria)
   router.post('/', soloUsuarios, subirFotoPublicacion, async (req, res) => {
     let urlFotoSubida = null;
     try {
@@ -76,7 +74,7 @@ function crearRutas({ modelos, requiereSesion, soloUsuarios, subirFotoPublicacio
     }
   });
 
-  // PUT /api/publicaciones/:id (solo el dueño; la foto es opcional al editar)
+ 
   router.put('/:id', soloUsuarios, subirFotoPublicacion, async (req, res) => {
     let urlFotoSubida = null;
     try {
@@ -98,7 +96,6 @@ function crearRutas({ modelos, requiereSesion, soloUsuarios, subirFotoPublicacio
     }
   });
 
-  // PATCH /api/publicaciones/:id/disponibilidad  { disponibilidad: 'disponible' | 'no_disponible' }
   router.patch('/:id/disponibilidad', soloUsuarios, async (req, res) => {
     const id = entero(req.params.id, 'id');
     const valor = req.body && req.body.disponibilidad;
@@ -110,7 +107,6 @@ function crearRutas({ modelos, requiereSesion, soloUsuarios, subirFotoPublicacio
     res.json({ disponibilidad: valor });
   });
 
-  // DELETE /api/publicaciones/:id → borrado lógico. Lo puede hacer el dueño o un admin (moderación).
   router.delete('/:id', async (req, res) => {
     const id = entero(req.params.id, 'id');
     const p = await pubs.obtener(id);
