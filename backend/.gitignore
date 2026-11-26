@@ -43,3 +43,5 @@ uploads/publicaciones/*
 node_modules/
 .env
 uploads/
+backend/uploads/
+.DS_Store

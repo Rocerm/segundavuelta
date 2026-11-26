@@ -5,6 +5,8 @@ const express = require('express');
 const multer = require('multer');
 const { ErrorHttp } = require('./utilidades');
 
+
+//Es como el llamado de los avengers jejeje, rd como el doctor strange abriendo portales 
 const { crearModeloUsuarios } = require('./modelos/usuarios.modelo');
 const { crearModeloTokens } = require('./modelos/tokens.modelo');
 const { crearModeloCatalogos } = require('./modelos/catalogos.modelo');
@@ -21,8 +23,14 @@ const { crearCors } = require('./middlewares/cors.middleware');
 
 function crearApp(config, pool) {
   const app = express();
-  app.use(crearCors(process.env.CORS_ORIGINS)); // el frontend puede estar en otra computadora
+  app.use(crearCors(process.env.CORS_ORIGINS)); 
   app.use(express.json({ limit: '100kb' }));
+
+  const limitadorAuth = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 5, // para que no se pasen de rosca jeje
+    message: { error: 'Demasiados intentos, intenta más tarde' }
+  });
 
   // ---- Modelos (cada uno habla con sus tablas) ----
   const modelos = {

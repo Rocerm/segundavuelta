@@ -101,7 +101,9 @@ input:disabled, select:disabled { background: var(--azul-claro); color: var(--su
 fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 
 /* ================= Tarjetas ================= */
-.panel { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio); padding: 1.4rem; margin-bottom: 1.2rem; box-shadow: var(--sombra); }
+.panel { 
+  background: var(--blanco); 
+  border: 1px solid var(--borde); border-radius: var(--radio); padding: 1.4rem; margin-bottom: 1.2rem; box-shadow: var(--sombra); }
 .panel.oscuro { background: var(--marino); color: #fff; border-color: var(--marino); }
 .cuadricula { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.2rem; }
 .tarjeta { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio); overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column; box-shadow: var(--sombra); }
