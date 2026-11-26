@@ -1,5 +1,19 @@
 # Segunda Vuelta
 
+-Castelan Melo María José
+-Lizarde Linares Brandon
+-Mendoza Ceras Rodrigo
+-Pérez Flores Angel Humberto
+
+
+
+
+
+
+
+
+
+
 Plataforma para **donar e intercambiar artículos de bebé y de adulto mayor** en la CDMX.
 Dos proyectos independientes que se pueden correr **en computadoras distintas**:
 
