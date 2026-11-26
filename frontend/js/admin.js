@@ -22,7 +22,7 @@
   // Tarjeta de persona con botones comunes
   const nombreDe = (n, a) => esc(nombreCompleto(n, a));
 
-  // ================= RESUMEN =================
+  //  RESUMEN 
   async function resumen() {
     titular('Resumen', 'Lo que necesita tu atención hoy.');
     try {
@@ -38,7 +38,7 @@
     } catch (error) { mostrarError(error); }
   }
 
-  // ================= REPORTES =================
+  //  REPORTES 
   async function reportes(idusuario) {
     titular('Reportes', idusuario ? `Reportes de la persona #${idusuario}` : 'Publicaciones y perfiles reportados por la comunidad.');
     try {
@@ -65,7 +65,7 @@
     } catch (error) { mostrarError(error); }
   }
 
-  // ================= USUARIOS REPORTADOS =================
+  //  USUARIOS REPORTADOS 
   async function reportados() {
     titular('Usuarios reportados', 'Quién ha sido reportado y cuántas veces. Empieza por los que tienen reportes pendientes.');
     try {
@@ -80,7 +80,7 @@
     } catch (error) { mostrarError(error); }
   }
 
-  // ================= SANCIONES =================
+  //  SANCIONES 
   async function sanciones() {
     titular('Sanciones', 'Historial de advertencias, suspensiones y baneos. Si una fue un error, puedes revertirla.');
     try {
@@ -95,7 +95,7 @@
     } catch (error) { mostrarError(error); }
   }
 
-  // ================= APELACIONES =================
+  //  APELACIONES 
   async function apelaciones() {
     titular('Apelaciones', 'Personas sancionadas que explican por qué creen que fue un error.');
     try {
@@ -111,7 +111,7 @@
     } catch (error) { mostrarError(error); }
   }
 
-  // ================= PUBLICACIONES (todas) =================
+  //  PUBLICACIONES (todas) 
   async function publicaciones() {
     titular('Publicaciones', 'Todas las publicaciones, aunque no tengan reportes ni sanciones.');
     try {
@@ -144,7 +144,7 @@
     } catch (error) { mostrarError(error); }
   }
 
-  // ================= CATEGORÍAS =================
+  // categoria
   async function categorias() {
     titular('Categorías', 'Qué se puede publicar y qué reglas lleva cada categoría.');
     try {

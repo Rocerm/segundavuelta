@@ -23,6 +23,7 @@ const { crearCors } = require('./middlewares/cors.middleware');
 
 function crearApp(config, pool) {
   const app = express();
+  app.set('trust proxy', 1); // Lei que esto es para giardar una ip y saber quein se pasas de rosca 
   app.use(crearCors(process.env.CORS_ORIGINS)); 
   app.use(express.json({ limit: '100kb' }));
 
@@ -32,7 +33,7 @@ function crearApp(config, pool) {
     message: { error: 'Demasiados intentos, intenta más tarde' }
   });
 
-  // ---- Modelos (cada uno habla con sus tablas) ----
+  //Modelos que ya estan dentro de , y hablan con las tablas 
   const modelos = {
     usuarios: crearModeloUsuarios(pool),
     tokens: crearModeloTokens(pool),
@@ -44,16 +45,17 @@ function crearApp(config, pool) {
     moderacion: crearModeloModeracion(pool),
   };
 
-  // ---- Middlewares de autenticación (JWT) ----
+  // Aqui se hace autenticidad
   const jwtAuth = crearJWT(config, modelos.tokens);
   const sesion = crearSesion(jwtAuth, modelos.usuarios);
 
-  // Lo que reciben todas las rutas.
+  //Aqui no enteidno
+  //
   const ctx = {
     modelos, jwtAuth,
     requiereSesion: sesion.requiereSesion,
     requiereRol: sesion.requiereRol,
-    // El admin NO publica, no pide artículos, no chatea ni califica: esas rutas son solo para el rol 'usuario'.
+    // Aqui le decimos a mmi amigo adminn que el no opertenece a esta fiest por que el solo observa como suben publis
     soloUsuarios: sesion.requiereRol('usuario'),
     subirFotoPerfil: subirFoto('perfiles'),
     subirFotoPublicacion: subirFoto('publicaciones'),

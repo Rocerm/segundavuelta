@@ -17,7 +17,7 @@ function obtenerClienteSupabase() {
   return createClient(url, key);
 }
 
-// carpeta: 'perfiles' o 'publicaciones'. Deja el archivo en req.file.buffer.
+// carpeta: 'perfiles' o 'publicaciones'
 function subirFoto(carpeta) {
   return multer({
     storage: multer.memoryStorage(),
@@ -56,10 +56,11 @@ async function borrarArchivo(urlPublica) {
   if (!urlPublica || !urlPublica.includes(`/storage/v1/object/public/${BUCKET}/`)) return;
   try {
     const supabase = obtenerClienteSupabase();
-    const rutaInterna = urlPublica.split(`/storage/v1/object/public/${BUCKET}/`);
-    if (rutaInterna) {
-      await supabase.storage.from(BUCKET).remove([rutaInterna]);
-    }
+  const rutaInterna = urlPublica.split(`/storage/v1/object/public/${BUCKET}/`)[1];
+if (rutaInterna) {
+  const { error } = await supabase.storage.from(BUCKET).remove([rutaInterna]);
+  if (error) console.error('Error borrando foto anterior:', error.message);
+}
   } catch (error) {
     console.error('Error borrando foto anterior:', error.message);
   }
